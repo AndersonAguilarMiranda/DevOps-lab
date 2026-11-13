@@ -1,4 +1,4 @@
-# JornadaCloud
+# DevOps-lab
 
 Aplicación de gestión de jornada laboral: empleados, fichajes, turnos, vacaciones y solicitudes.
 
