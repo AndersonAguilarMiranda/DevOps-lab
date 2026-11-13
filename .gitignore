@@ -1,0 +1,31 @@
+# Java / Maven
+target/
+*.class
+*.jar
+*.war
+.mvn/wrapper/maven-wrapper.jar
+
+# Node
+node_modules/
+dist/
+build/
+*.log
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.swp
+
+# Entorno
+.env
+.env.local
+*.local.yml
+
+# Sistema
+.DS_Store
+Thumbs.db
+
+# Flyway / BD local
+*.dump
+*.sql.bak
