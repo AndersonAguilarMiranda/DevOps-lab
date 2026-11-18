@@ -1,0 +1,20 @@
+services:
+  postgres:
+    image: docker.io/library/postgres:16-alpine
+    container_name: dmz2-postgres
+    environment:
+      POSTGRES_USER: dmz2
+      POSTGRES_PASSWORD: dmz2password
+      POSTGRES_DB: dmz2db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dmz2 -d dmz2db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:

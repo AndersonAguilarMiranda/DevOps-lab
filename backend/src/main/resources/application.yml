@@ -1,6 +1,6 @@
 spring:
   application:
-    name: jornadacloud
+    name: dmz2
   profiles:
     active: local
 
