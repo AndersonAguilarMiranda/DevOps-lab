@@ -109,3 +109,21 @@ code {
   padding: 4px 8px;
   background: var(--code-bg);
 }
+
+.card-hover {
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card-hover:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+  cursor: pointer;
+}
+
+.hover-bg:hover {
+  background-color: #f8f9fa;
+}
+.border-dashed {
+  border-style: dashed !important;
+  border-color: #dee2e6 !important;
+}
