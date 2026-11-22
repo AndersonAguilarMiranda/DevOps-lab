@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useOutletContext } from 'react-router-dom';
-import { getTrabajadores, crearTrabajador, type Trabajador } from '../api/api';
+import { getTrabajadores, crearTrabajador, type Trabajador, getUltimaCarga } from '../api/api';
 
 export default function Dashboard() {
   const { isAdmin } = useOutletContext<{ isAdmin: boolean }>();
@@ -9,10 +9,17 @@ export default function Dashboard() {
   const [nuevoId, setNuevoId] = useState('');
   const [error, setError] = useState('');
 
+  // Estado para guardar las fechas que vienen del backend
+  const [fechas, setFechas] = useState({
+    flexis: 'Cargando...',
+    complementarias: 'Cargando...',
+    festivos: 'Cargando...'
+  });
+
   const stats = [
-    { title: 'Flexis', label: 'Totales', path: '/flexis' },
-    { title: 'Complementarias', label: 'Semanales', path: '/complementarias' },
-    { title: 'Festivos', label: 'Anuales', path: '/festivos' },
+    { title: 'Flexis', path: '/flexis' },
+    { title: 'Complementarias', path: '/complementarias' },
+    { title: 'Festivos', path: '/festivos' },
   ];
 
   const cargarTrabajadores = async () => {
@@ -25,8 +32,26 @@ export default function Dashboard() {
     }
   };
 
+  // Carga inicial: pedimos trabajadores y fechas
   useEffect(() => {
     cargarTrabajadores();
+
+    const cargarFechas = async () => {
+      try {
+        const f = await getUltimaCarga('flexis');
+        const c = await getUltimaCarga('complementarias');
+        const fe = await getUltimaCarga('festivos');
+
+        setFechas({
+          flexis: f.fecha ? new Date(f.fecha).toLocaleDateString() : 'Sin datos',
+          complementarias: c.fecha ? new Date(c.fecha).toLocaleDateString() : 'Sin datos',
+          festivos: fe.fecha ? new Date(fe.fecha).toLocaleDateString() : 'Sin datos',
+        });
+      } catch (e) {
+        console.error("Error al cargar fechas", e);
+      }
+    };
+    cargarFechas();
   }, []);
 
   const handleCrear = async (e: React.FormEvent) => {
@@ -57,7 +82,13 @@ export default function Dashboard() {
               <div className="card border-0 shadow-sm h-100 card-hover bg-white">
                 <div className="card-body p-4">
                   <h4 className="fw-bold text-dark mb-1">{stat.title}</h4>
-                  <p className="text-muted small mb-0">{stat.label}</p>
+
+                  {/* AQUÍ PINTAMOS LA FECHA DINÁMICA */}
+                  <p className="text-muted small mb-0">
+                    {stat.title === 'Flexis' ? `Última: ${fechas.flexis}` :
+                     stat.title === 'Complementarias' ? `Última: ${fechas.complementarias}` :
+                     `Última: ${fechas.festivos}`}
+                  </p>
                 </div>
               </div>
             </Link>
