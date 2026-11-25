@@ -29,3 +29,6 @@ Thumbs.db
 # Flyway / BD local
 *.dump
 *.sql.bak
+
+# Carpeta de pruebas temporales
+tmp/

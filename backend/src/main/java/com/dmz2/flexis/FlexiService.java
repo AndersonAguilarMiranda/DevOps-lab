@@ -1,19 +1,26 @@
 package com.dmz2.flexis;
 
+import com.dmz2.historial.HistorialCarga;
+import com.dmz2.historial.HistorialCargaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 public class FlexiService {
 
     private final FlexiRepository flexiRepository;
+    private final HistorialCargaRepository historialRepository;
 
-    public FlexiService(FlexiRepository flexiRepository) {
+    // EL CONSTRUCTOR DEBE TENER LOS DOS REPOSITORIOS Y ASIGNARLOS
+    public FlexiService(FlexiRepository flexiRepository, HistorialCargaRepository historialRepository) {
         this.flexiRepository = flexiRepository;
+        this.historialRepository = historialRepository;
     }
 
     public void procesarCsv(MultipartFile file) throws Exception {
@@ -22,21 +29,30 @@ public class FlexiService {
             boolean isFirstLine = true;
 
             while ((line = br.readLine()) != null) {
-                // Saltamos la primera línea si es la cabecera (ej. "id,mes,año,positivas...")
                 if (isFirstLine) {
                     isFirstLine = false;
                     continue;
                 }
 
-                // Separamos por comas (o por punto y coma si el CSV usa ese formato)
                 String[] data = line.split(",");
 
-                // Ejemplo de CSV: 101,11,2026,10.5,2.0,5.0,1.0
                 if (data.length >= 7) {
-                    Flexi flexi = new Flexi();
-                    flexi.setTrabajadorId(Long.parseLong(data[0].trim()));
-                    flexi.setMes(Integer.parseInt(data[1].trim()));
-                    flexi.setAnio(Integer.parseInt(data[2].trim()));
+                    Long trabajadorId = Long.parseLong(data[0].trim());
+                    Integer mes = Integer.parseInt(data[1].trim());
+                    Integer anio = Integer.parseInt(data[2].trim());
+
+                    Optional<Flexi> flexiExistente = flexiRepository.findByTrabajadorIdAndMesAndAnio(trabajadorId, mes, anio);
+
+                    Flexi flexi;
+                    if (flexiExistente.isPresent()) {
+                        flexi = flexiExistente.get();
+                    } else {
+                        flexi = new Flexi();
+                        flexi.setTrabajadorId(trabajadorId);
+                        flexi.setMes(mes);
+                        flexi.setAnio(anio);
+                    }
+
                     flexi.setPositivas(new BigDecimal(data[3].trim()));
                     flexi.setNegativas(new BigDecimal(data[4].trim()));
                     flexi.setParcialesPositivas(new BigDecimal(data[5].trim()));
@@ -46,5 +62,12 @@ public class FlexiService {
                 }
             }
         }
+
+        // Guardar en el historial de cargas
+        HistorialCarga historial = new HistorialCarga();
+        historial.setTipo("FLEXIS");
+        historial.setFechaCarga(LocalDateTime.now());
+        historial.setNombreArchivo(file.getOriginalFilename());
+        historialRepository.save(historial);
     }
 }
