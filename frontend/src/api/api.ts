@@ -19,3 +19,9 @@ export const crearTrabajador = async (id: number): Promise<Trabajador> => {
   if (!response.ok) throw new Error('Error al crear trabajador');
   return response.json();
 };
+
+export const getUltimaCarga = async (tipo: string) => {
+  const response = await fetch(`http://localhost:8080/api/historial/${tipo}`);
+  if (!response.ok) throw new Error('Error al cargar la fecha');
+  return response.json();
+};

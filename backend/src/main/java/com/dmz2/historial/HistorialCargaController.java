@@ -4,6 +4,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 import java.util.HashMap;
 
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/historial")
 public class HistorialCargaController {
